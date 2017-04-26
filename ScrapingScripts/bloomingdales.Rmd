@@ -36,18 +36,29 @@ bloomingdalesHTML
 ```
 
 ```{r}
-exampleLinkHTML = read_html(allLinks[2])
-original_price = html_text(exampleLinkHTML,xpath='//*[@id="orgPrice"]/span[2]')
+exampleLinkHTML = read_html(allLinks[15])
+original_price = html_nodes(exampleLinkHTML,xpath='//*[@id="PriceDisplay"]')
 bulletPoints = html_nodes(exampleLinkHTML,xpath = '//*[@class="product-details-bullet-list"]')
-
+original_price
+bulletPoints
 
 
 ```
 
 
 
+```{r}
 
+```
 
-
+<div id="PriceDisplay"><div>
+	<div class="priceSale">
+			<div id="orgPrice">
+				<span class="cw_price_label">Price</span>
+				<span class="cw_price_holder">$42.50</span>
+				
+			</div>
+	</div>
+</div></div>
 
 #str_extract(x,'(?<=-)[1-9]+?')
