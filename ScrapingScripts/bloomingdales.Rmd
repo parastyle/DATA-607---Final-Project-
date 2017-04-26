@@ -9,9 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(rvest)
 library(stringr)
+library(jsonlite)
+```
+
+```{r}
+results = data.frame(price = c(),
+                     sale_price = c(),
+                     sizes = c(),
+                     colors = c(),
+                     material = c(),
+                     reviewScore = c(),
+                     seller = c())
 ```
 
 ```{R}
+
 bloomingdalesHTML = read_html('https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Pageindex,Productsperpage/Boxer%20Brief,1,180?id=1006225')
 
 bloomingdalesHTML
@@ -19,20 +31,23 @@ bloomingdalesHTML
   nodes = html_nodes(nodes,"div")
   nodes = html_nodes(nodes,"a")
   links = html_attr(nodes,'href')
-  allBoxerBriefLinks = as.character(links[seq(67,length(links),3)])
-
+  allLinks = as.character(links[seq(68,length(links),3)])
+  allLinks = allLinks[str_detect(allLinks,'pack')==FALSE]
 ```
 
 ```{r}
-exampleLinkHTML = read_html(allBoxerBriefLinks[2])
-ARGH = html_nodes(exampleLinkHTML,xpath = '//*[@class="product-details-bullet-list"]')
+exampleLinkHTML = read_html(allLinks[2])
+original_price = html_text(exampleLinkHTML,xpath='//*[@id="orgPrice"]/span[2]')
+bulletPoints = html_nodes(exampleLinkHTML,xpath = '//*[@class="product-details-bullet-list"]')
+
+
+
 ```
 
 
-```{r}
-for(link in allBoxerBriefLinks){
-  if(str_detect(link,'pack')==TRUE){
-    print(str_extract(link,'(?<=-)[1-9]+?'))
-  }
-}
-```
+
+
+
+
+
+#str_extract(x,'(?<=-)[1-9]+?')
