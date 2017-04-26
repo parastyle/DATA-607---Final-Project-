@@ -35,9 +35,21 @@ bloomingdalesHTML
   allLinks = allLinks[str_detect(allLinks,'pack')==FALSE]
 ```
 
+## this is what I'm trying to extract
+<div id="PriceDisplay"><div>
+	<div class="priceSale">
+			<div id="orgPrice">
+				<span class="cw_price_label">Price</span>
+				<span class="cw_price_holder">$42.50</span> <<<<<<<<<<<<<<<<<< The second span node
+				
+			</div>
+	</div>
+</div></div>
+
+
 ```{r}
 exampleLinkHTML = read_html(allLinks[15])
-original_price = html_nodes(exampleLinkHTML,xpath='//*[@id="PriceDisplay"]')
+original_price = html_nodes(exampleLinkHTML,xpath='//*[@id="orgPrice"]/span[2]')
 bulletPoints = html_nodes(exampleLinkHTML,xpath = '//*[@class="product-details-bullet-list"]')
 original_price
 bulletPoints
@@ -51,14 +63,6 @@ bulletPoints
 
 ```
 
-<div id="PriceDisplay"><div>
-	<div class="priceSale">
-			<div id="orgPrice">
-				<span class="cw_price_label">Price</span>
-				<span class="cw_price_holder">$42.50</span>
-				
-			</div>
-	</div>
-</div></div>
+
 
 #str_extract(x,'(?<=-)[1-9]+?')
