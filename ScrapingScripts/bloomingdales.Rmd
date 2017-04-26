@@ -7,5 +7,17 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
 ```
 
+```{R}
+bloomingdalesHTML = read_html('https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Pageindex,Productsperpage/Boxer%20Brief,1,180?id=1006225')
+
+bloomingdalesHTML
+  nodes = html_nodes(bloomingdalesHTML,"li") 
+  nodes = html_nodes(nodes,"div")
+  nodes = html_nodes(nodes,"a")
+  links = html_attr(nodes,'href')
+  allBoxerBriefLinks = as.character(links[seq(67,length(links),3)])
+
+```
