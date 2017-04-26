@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(rvest)
+library(stringr)
 ```
 
 ```{R}
@@ -20,4 +21,18 @@ bloomingdalesHTML
   links = html_attr(nodes,'href')
   allBoxerBriefLinks = as.character(links[seq(67,length(links),3)])
 
+```
+
+```{r}
+exampleLinkHTML = read_html(allBoxerBriefLinks[2])
+ARGH = html_nodes(exampleLinkHTML,xpath = '//*[@class="product-details-bullet-list"]')
+```
+
+
+```{r}
+for(link in allBoxerBriefLinks){
+  if(str_detect(link,'pack')==TRUE){
+    print(str_extract(link,'(?<=-)[1-9]+?'))
+  }
+}
 ```
