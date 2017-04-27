@@ -10,6 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 library(rvest)
 library(stringr)
 library(jsonlite)
+library(RSelenium)
+library(devtools)
+library(httr)
+library(Rcpp)
+options(digits = 4)
+options(stringsAsFactors = FALSE)
 ```
 
 ```{r}
@@ -20,47 +26,68 @@ results = data.frame(price = c(),
                      material = c(),
                      reviewScore = c(),
                      seller = c())
+
+
+
 ```
 
 ```{R}
+#Here is all 283 listings of all male under-garments at bloomingdales
+bloomingdalesURLS = c('https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Productsperpage/Boxer%20Brief%7CBoxer%7CBrief%7CJockstrap%2FThong%7CTrunk,180?id=1006225',
+                      'https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Pageindex,Productsperpage/Boxer%7CBoxer%20Brief%7CBrief%7CJockstrap%2FThong%7CTrunk,2,180?id=1006225')
+allImportantLinks = c() #Populating in below loop
 
-bloomingdalesHTML = read_html('https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Pageindex,Productsperpage/Boxer%20Brief,1,180?id=1006225')
+for(url in bloomingdalesURLS){
+bloomingdalesHTML = read_html(url)
 
-bloomingdalesHTML
   nodes = html_nodes(bloomingdalesHTML,"li") 
   nodes = html_nodes(nodes,"div")
   nodes = html_nodes(nodes,"a")
   links = html_attr(nodes,'href')
   allLinks = as.character(links[seq(68,length(links),3)])
   allLinks = allLinks[str_detect(allLinks,'pack')==FALSE]
+  allImportantLinks = c(allImportantLinks,allLinks[6:length(allLinks)])
+}
+allImportantLinks
 ```
 
-## this is what I'm trying to extract
-<div id="PriceDisplay"><div>
-	<div class="priceSale">
-			<div id="orgPrice">
-				<span class="cw_price_label">Price</span>
-				<span class="cw_price_holder">$42.50</span> <<<<<<<<<<<<<<<<<< The second span node
-				
-			</div>
-	</div>
-</div></div>
 
 
 ```{r}
-exampleLinkHTML = read_html(allLinks[15])
-original_price = html_nodes(exampleLinkHTML,xpath='//*[@id="orgPrice"]/span[2]')
-bulletPoints = html_nodes(exampleLinkHTML,xpath = '//*[@class="product-details-bullet-list"]')
+#exampleLinkHTML = read_html(allLinks[15])
+
+
+  url = paste0(allImportantLinks[17])
+  lines = readLines("custom_scrape.js")
+  lines[1] = paste0("var url ='", url ,"';")
+  writeLines(lines, "custom_scrape.js")
+  
+system('./phantomjs  custom_scrape.js')
+pg <- read_html("loaded.html")
+
+
+original_price = html_nodes(pg,xpath='//*[@id="orgPrice"]/span[2]')
+bullet_points = html_nodes(pg,xpath = '//*[@class="product-details-bullet-list"]')
+title = html_nodes(pg,xpath = '//*[@id="productName"]')
+review = html_nodes(pg,xpath = '//*[@id="BVRRRatingOverall_Rating_Summary_1"]/div[2]/img')
+sale = html_nodes(pg,xpath = '//*[@id="salePrice"]/span[2]')
+color = html_nodes(pg,xpath = '//*[@id="colors_0"]/div[1]/ul')
 original_price
-bulletPoints
-
+bullet_points
 
 ```
 
 
 
 ```{r}
+original_price
+bullet_points
+title
 
+```
+
+```{r}
+colors = str_extract_all(as.character(color),'(?<=alt=")[[:alpha:]]+(?=")')
 ```
 
 
