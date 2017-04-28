@@ -14,6 +14,7 @@ library(RSelenium)
 library(devtools)
 library(httr)
 library(Rcpp)
+library(dplyr)
 options(digits = 4)
 options(stringsAsFactors = FALSE)
 ```
@@ -87,7 +88,7 @@ title
 ```
 
 ```{r}
-colors = str_extract_all(as.character(color),'(?<=alt=")[[:alpha:]]+(?=")')
+colors = str_match_all(as.character(color),'(?<=alt=")[[:alpha:] [:alpha:]]+(?=")')
 ```
 
 

@@ -1,0 +1,39 @@
+---
+title: "phantomBrowserTesting"
+author: "Michael Muller"
+date: "April 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(xml2)
+library(rvest)
+library(stringr)
+library(plyr)
+library(dplyr)
+library(ggvis)
+library(knitr)
+options(digits = 4)
+```
+
+```{R}
+
+options(stringsAsFactors = FALSE)
+require(rvest)
+
+
+
+
+system('./phantomjs  scrape_final.js')
+
+
+pg <- read_html("techstars.html")
+original_price = html_nodes(pg,xpath='//*[@id="orgPrice"]/span[2]')
+
+```
+
+```{r}
+
+
+```
