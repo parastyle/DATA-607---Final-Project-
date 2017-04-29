@@ -1,4 +1,4 @@
-var url ='https://www.bloomingdales.com/shop/product/calvin-klein-edge-micro-low-rise-trunks?ID=2530157&CategoryID=1006225#fn=spp%3D51';
+var url ='https://www.bloomingdales.com/shop/product/calvin-klein-ck-id-trunks?ID=2459889&CategoryID=1006225#fn=spp%3D52';
 var fs = require('fs');
 var path = 'loaded.html';
 var webPage = require('webpage');

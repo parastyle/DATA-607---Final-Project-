@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(rvest)
 library(stringr)
 library(jsonlite)
-library(RSelenium)
 library(devtools)
 library(httr)
 library(Rcpp)
@@ -81,14 +80,18 @@ bullet_points
 
 
 ```{r}
+colors
 original_price
 bullet_points
 title
-
+str_extract_all(as.character(bullet_points),'(?<=li>)[[:alpha:] /[:alpha:]]*(?=<)')
 ```
 
 ```{r}
-colors = str_match_all(as.character(color),'(?<=alt=")[[:alpha:] [:alpha:]]+(?=")')
+colors = unique(unlist(str_extract_all(as.character(color),'(?<=alt=")[[:alpha:] [:alpha:]]+(?=")',simplify = FALSE)))
+original_price = str_extract(as.character(original_price),'[0-9]+.[0-9]{2}')
+sale = str_extract(as.character(sale),'[0-9]+.[0-9]{2}')
+title = str_extract(as.character(title),'(?<=name">)[[:alpha:] ]*(?=<)')
 ```
 
 
