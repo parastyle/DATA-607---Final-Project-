@@ -21,13 +21,22 @@ options(stringsAsFactors = FALSE)
 ```{r}
 results = data.frame(price = c(),
                      sale_price = c(),
-                     sizes = c(),
                      colors = c(),
                      material = c(),
-                     reviewScore = c(),
+                     notes = c(),
+                     review = c(),
                      seller = c())
 
 
+dataMissing = function(x){
+  if(length(x)== 0 | is.null(x))
+    return(NA)
+  else{
+    return(x)
+  }
+}
+
+viableMaterials = c('charmeuse','cotton','polyamide','polyester','satin','silk','spandex','velvet','tactel','viscose','nylon','microfiber','chiffon','elastane','elastic','jacquard','leather','lycra','merino','wool','combed','mesh','knit','fabric', 'woven')
 
 ```
 
@@ -46,6 +55,7 @@ bloomingdalesHTML = read_html(url)
   links = html_attr(nodes,'href')
   allLinks = as.character(links[seq(68,length(links),3)])
   allLinks = allLinks[str_detect(allLinks,'pack')==FALSE]
+  allLinks = allLinks[str_detect(allLinks,'set')==FALSE]
   allImportantLinks = c(allImportantLinks,allLinks[6:length(allLinks)])
 }
 allImportantLinks
@@ -57,7 +67,7 @@ allImportantLinks
 #exampleLinkHTML = read_html(allLinks[15])
 
 
-  url = paste0(allImportantLinks[17])
+  url = paste0(allImportantLinks[3])
   lines = readLines("custom_scrape.js")
   lines[1] = paste0("var url ='", url ,"';")
   writeLines(lines, "custom_scrape.js")
@@ -80,11 +90,7 @@ bullet_points
 
 
 ```{r}
-colors
-original_price
-bullet_points
-title
-str_extract_all(as.character(bullet_points),'(?<=li>)[[:alpha:] /[:alpha:]]*(?=<)')
+
 ```
 
 ```{r}
@@ -92,6 +98,11 @@ colors = unique(unlist(str_extract_all(as.character(color),'(?<=alt=")[[:alpha:]
 original_price = str_extract(as.character(original_price),'[0-9]+.[0-9]{2}')
 sale = str_extract(as.character(sale),'[0-9]+.[0-9]{2}')
 title = str_extract(as.character(title),'(?<=name">)[[:alpha:] ]*(?=<)')
+bullet_points = str_extract_all(as.character(bullet_points),'(?<=li>)[[:alpha:] /[:alpha:]]*(?=<)')
+review = str_extract(as.character(review), '[1-5] (?=/)' )
+materials = unlist(str_extract_all(tolower(bullet_points),viableMaterials))
+str_replace_all(unlist(tolower(bullet_points),viableMaterials,''))
+str_
 ```
 
 

@@ -1,4 +1,4 @@
-var url ='https://www.bloomingdales.com/shop/product/calvin-klein-ck-id-trunks?ID=2459889&CategoryID=1006225#fn=spp%3D52';
+var url ='https://www.bloomingdales.com/shop/product/2xist-tech-micro-no-show-camouflage-trunks?ID=2541672&CategoryID=1006225#fn=spp%3D12';
 var fs = require('fs');
 var path = 'loaded.html';
 var webPage = require('webpage');
