@@ -1,4 +1,4 @@
-var url ='https://www.bloomingdales.com/shop/product/2xist-tech-micro-no-show-camouflage-trunks?ID=2541672&CategoryID=1006225#fn=spp%3D12';
+var url ='https://www.bloomingdales.com/shop/product/emporio-armani-microfiber-briefs?ID=1675362&CategoryID=1006225#fn=spp%3D103';
 var fs = require('fs');
 var path = 'loaded.html';
 var webPage = require('webpage');
