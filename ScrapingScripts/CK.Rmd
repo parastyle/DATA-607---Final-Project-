@@ -1,0 +1,70 @@
+---
+title: "CK -scrape"
+author: "Michael Muller"
+date: "May 4, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
+library(stringr)
+library(jsonlite)
+library(devtools)
+library(httr)
+library(Rcpp)
+library(dplyr)
+options(digits = 4)
+options(stringsAsFactors = FALSE)
+```
+
+
+```{r}
+
+boxerbriefsURL ='http://www.calvinklein.us/en/mens-boxer-briefs'
+trunksURL = 'http://www.calvinklein.us/en/mens-trunks'
+briefsURL = 'http://www.calvinklein.us/en/mens-briefs'
+URLS = list(boxerbriefsURL,trunksURL,briefsURL)
+for(L in trunksURL){
+  url = paste0(L)
+  lines = readLines("./custom_scrape.js")
+  lines[1] = paste0("var url ='", url ,"';")
+  writeLines(lines, "custom_scrape.js")
+  
+system('./phantomjs  custom_scrape.js')
+pg <- read_html("loaded.html")
+}
+```
+
+
+```{r}
+nodes = html_nodes(pg, xpath = '//*[@id="products"]/div/div/div/div') 
+links = html_nodes(nodes,'a') 
+hrefs = html_attr(links,'href')
+titles = html_text(links)
+items = data.frame(hrefs,titles)
+items = items[!duplicated(items$titles),]
+items = subset(items, !str_detect(titles, 'pack' ))
+items = items[-2,]
+```
+
+```{r}
+#Here is all 283 listings of all male under-garments at bloomingdales
+bloomingdalesURLS = c('https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Productsperpage/Boxer%20Brief%7CBoxer%7CBrief%7CJockstrap%2FThong%7CTrunk,180?id=1006225',
+                      'https://www.bloomingdales.com/shop/mens/underwear-boxers-briefs-trunks/Underwear_type,Pageindex,Productsperpage/Boxer%7CBoxer%20Brief%7CBrief%7CJockstrap%2FThong%7CTrunk,2,180?id=1006225')
+allImportantLinks = c() #Populating in below loop
+
+for(url in bloomingdalesURLS){
+bloomingdalesHTML = read_html(url)
+
+  nodes = html_nodes(bloomingdalesHTML,"li") 
+  nodes = html_nodes(nodes,"div")
+  nodes = html_nodes(nodes,"a")
+  links = html_attr(nodes,'href')
+  allLinks = as.character(links[seq(68,length(links),3)])
+  allLinks = allLinks[str_detect(allLinks,'pack')==FALSE]
+  allLinks = allLinks[str_detect(allLinks,'set')==FALSE]
+  allImportantLinks = c(allImportantLinks,allLinks[6:length(allLinks)])
+}
+allImportantLinks
+```
