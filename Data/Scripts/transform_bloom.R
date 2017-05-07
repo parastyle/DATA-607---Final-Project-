@@ -44,11 +44,12 @@ bloom <- filter(bloom, !is.na(price.original))
 
 ## ---------------- CONVERT TO TIDY FORMAT ----------------
 
-bloom <- bloom %>% 
+bloom_tidy <- bloom %>% 
   gather(key, value, 2:9) %>% 
   unnest(value) %>% 
   filter(!is.na(value))
 
 ## ---------------- SAVE FOR FUTURE ANALYSIS  ----------------
 
-write.csv(bloom, "bloomingdales-tidy.csv", row.names = FALSE)
+write.csv(bloom_tidy, "bloomingdales-tidy.csv", row.names = FALSE)
+saveRDS(bloom, "bloomingdales.rds")
