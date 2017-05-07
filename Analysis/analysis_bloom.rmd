@@ -1,3 +1,15 @@
+---
+title: "Bloomingdales Data Analysis"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Required libraries
 library(RCurl)
 library(tidyr)
@@ -7,14 +19,21 @@ library(ggplot2)
 # Load data into data frame
 bloom <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/bloomingdales.rds")))
 bloom$price.original <- as.double(bloom$price.original)
+```
 
-## ------------------- DATA ANALYSIS -------------------
+Histogram of price distribution. The average seems to be just under $30. It is right skewed with outliers as high as $70.
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Histogram
 ggplot(bloom, aes(price.original)) + 
   geom_histogram() + 
   xlab("Price") + ylab("")
+```
 
+\newpage
+Below is top colors. Not surpirisingly, black and white are above everything else. Pattern colors are also extremely popular. Other colors are not high, but this may be due to "fancy" names. Twenty bucks to whoever can guess the color of *Paradise*. 
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Popular colors (top 15)
 u <- bloom %>% 
   select(color) %>% 
@@ -27,7 +46,9 @@ ggplot(u, aes(u$color, u$n)) +
   geom_bar(stat = "identity") + 
   coord_flip() + 
   xlab("Color") + ylab("No of Items")
+```
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Color box plots
 collapse_color = function(x){
   if (x!="white" && x!="black" && x!="pattern")
@@ -35,7 +56,11 @@ collapse_color = function(x){
   else 
     return(x)
 }
+```
+\newpage
+Box plots of prices by color. Average is the same for all - not surprisingly. However, there are definitely more examples of higher priced pattern underwear.
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 bloom %>% 
   select(color, price.original) %>% 
   unnest(color) %>% 
@@ -43,7 +68,11 @@ bloom %>%
   ggplot(aes(x = as.factor(unlist(color)), y = price)) + 
   geom_boxplot() + geom_point() + 
   xlab("Color") + ylab("Price")
+```
+\newpage
+Box plots by material. It may be worthwhile to look into polyamide. Keep in mind that there are very few products that use it, but the prices seem to be higher. 
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Material box plots with points
 bloom %>% 
   select(material, price.original) %>% 
@@ -52,14 +81,22 @@ bloom %>%
   ggplot(aes(x = as.factor(unlist(material)), y = price.original)) + 
   geom_boxplot() + geom_point() + 
   xlab("Material") + ylab("Price")
+```
+\newpage
+Box plots by type of underwear. It may appear that boxers are priced higher than other types, but there are very few products offered and the spread is pretty wide. I believe boxers are just not as popular as other types.
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Type box plots with points
 bloom %>% 
   select(type, price.original) %>% 
   ggplot(aes(x = as.factor(unlist(type)), y = price.original)) + 
   geom_boxplot() + geom_point() + 
   xlab("Type") + ylab("Price")
+```
+\newpage
+Tile plot of material by type. Darker rectangle is less products of that type and material. 
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Tile plot of material by type with count
 bloom %>% 
   select(material, type) %>% 
@@ -71,7 +108,11 @@ bloom %>%
   coord_flip() + 
   xlab("Material") + ylab("Type") + 
   scale_fill_continuous(guide = guide_legend(title = "No of Items"))
+```
+\newpage
+Box plots by number of colors offered. The average is about the same for all.
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 # Number of colors by price
 bloom %>% 
   select(color, price.original) %>% 
@@ -79,5 +120,4 @@ bloom %>%
   ggplot(aes(x = as.factor(unlist(color.count)), y = price)) + 
   geom_boxplot() + geom_point() + 
   xlab("No of Colors Offered") + ylab("Price")
-
-
+```
