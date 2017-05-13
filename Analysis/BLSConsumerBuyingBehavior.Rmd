@@ -1,0 +1,85 @@
+---
+title: "BLSData"
+author: "Cesar Espitia"
+date: "May 10, 2017"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(grid)
+library(RCurl)
+library(gridExtra)
+library(ggplot2)
+
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/Consumer%20Survey%20(BLS)/Buying200.csv", stringsAsFactors = F,na.strings=c("NA", "NULL"))
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+df1 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/Consumer%20Survey%20(BLS)/BuyingIncClass.csv", stringsAsFactors = F, na.strings=c("NA", "NULL"))
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+df2 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/Consumer%20Survey%20(BLS)/classes.csv", stringsAsFactors = F, na.strings=c("NA", "NULL"))
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+df3 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+
+#modify Df2 and Df3 to have same headers
+colnames(df3) <- c("INCLASS", "Description")
+df23 <- select(left_join(df2, df3, by = "INCLASS"), NEWID, Description)
+all <- select(left_join(df1, df23, by = "NEWID"), NEWID, ALCNO, CLOTHMOA, CLOTHXA, Description)
+
+#filter incomplete cases
+all <- data.frame(
+ NEWID = as.character(all[,1]),
+ ALCNO = as.numeric(all[,2]),
+ CLOTHMOA = as.numeric(all[,3]),
+ CLOTHXA = as.numeric(all[,4]),
+ Description = as.character(all[,5])
+)
+
+all <- filter(all, is.na(all[,5])==FALSE)
+all <- filter(all, is.na(all[,4])==FALSE)
+
+all %>% group_by(Description) %>% summarise(avg = mean(CLOTHXA))
+
+all <- select(all, Description, CLOTHXA)
+
+count(all, Description)
+
+#linear regression and testing ANOVA tos ee if different groups have different buying pattersn
+model <- lm(CLOTHXA ~ Description, data = all)
+summary(model)
+anova(model)
+
+#From the model we can see that athere is a difference between the income groups
+class.mod = data.frame(Fitted = fitted(model),
+  Residuals = resid(model), Treatment = all$Description)
+
+
+#plotting data
+p1 = ggplot(all, aes(x = Description, y = CLOTHXA, colour = Description)) +
+  geom_boxplot(fill = "grey80") +
+  scale_x_discrete() + xlab("Income Class") +
+  ylab("Spend")
+
+p2 = ggplot(class.mod, aes(Fitted, Residuals, colour = Treatment)) + geom_point()
+grid.arrange(p1, p2, ncol=2)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
