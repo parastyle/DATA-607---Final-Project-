@@ -12,29 +12,34 @@ Methodology and Data Collection
 Validation  
 Analysis  
 Conclusion
-Lessons Learned  
 
 Problem
 ========================================================
 
-A new underwear brand is being launched that caters to the larger stylish gentlemen.  
 
-No market analysis has been done to determine what to offer besides a boxer brief and at what price.
+A new underwear brand is being launched that caters to the larger, more stylish gentlemen.  
 
-Using resources like Ibisworld or Gartner are cost prohibitive as reports and dossies can cost in the thousands.  
+A boxer brief has been developed by the founders but they also need to offer one more type and need to know how to price it.  
 
-The goal of this project is to find freely available data to create a market analysis that will help them in making their decisions. 
+This information is provided by resources like Mintel, Ibisworld or Gartner but are cost prohibitive (single analysis upwards of $1,000 at times)
+
+The goal of this project is to find <b>freely available</b> data to create a market analysis that will help them in answering the question:  
+
+<center><b><i>What other underwear type do I develop and how do I price it?</i></b></center>
 
 Methodology and Data Collection
 ========================================================
 
 The data was collected by using information found on retailers websites.  Those chosen were:
-- Bloomingdales
-- Nordstrom
-- CK
-- Bureau of Labor Statistics
+- Bloomingdales (www.bloomingdales.com)
+- Nordstrom (www.nordstrom.com)
+- Calvin Klein (www.calvinklein.com)
 
-Other websites were considered but each site was unique and required additional time.
+Data was collected from retailers in the first week of May 2017. Other websites were originally considered but the three above provided a good sample for analysis.  
+
+To further round out the data collection, data from a government source was used to determine household spend on particular goods.  
+
+The Bureau of Labor Statistics (BLS) had a consumer expenditure diary data. The data downloaded was from Quarter 1 in 2015 only for category 200 (Undergarments) (source: https://www.bls.gov/cex/).  
 
 
 Methodology and Data Collection
@@ -45,27 +50,31 @@ Webscraping
 Validation (Retail Sites)
 ========================================================
 
-A total of 511 rows of data were collected from Bloomingdales, Nordstrom and CK.  In ensuring the validity of the data, histograms for the price of the overall dataset, price by underwear type, and a normal QQ plot were chosen.  
+A total of 511 rows of data were collected from Bloomingdales, Nordstrom and CK.  
+
+To determine the validity of the data, a histogram of price, a histogram of price by underwear type, and a normal QQ plot are shown below.  
 
 <center>![my image](TeamUndies-figure/price2.jpeg)
 ![my image](TeamUndies-figure/validatedata.jpeg)</center>
 
-The data is normally distributed.  
+The overall price histogram looks normally distributed and the QQ plot to show little to no abnormalities.  
 
 Validation (BLS)
 ========================================================
 
-A total of 825 rows of data were collected from the Bureau of Labor Statistics on personal consumption behavior for a quarter in 2015 for all genders.  In ensuring the validity of the data, a normal QQ plot were chosen.  
+A total of 825 rows of consumer purchasing data were collected from the Bureau of Labor Statistics on undergarment spend for the first quarter in 2015 for all genders.  
+
+To determine the validity of the data, a histogram of overall spend, a histogram of overall spend by income class, and a normal QQ plot are shown below.  
 
 <center>![my image](TeamUndies-figure/spend2.jpeg)
 ![my image](TeamUndies-figure/BLSvalidate.jpeg)</center>
 
-The data is heavily right skewed.  
+The data is heavily right skewed.  Although not normally distributed, the data will be included for analyiss to provide guidance.  
 
 Analysis (Retail)
 ========================================================
 
-Since pricing is the key goal and what other underwear type to offer, the choice become apparent that an ANOVA analysis would be more appropriate acorss the garment types.  
+Since the goal is to determine a secondary underwear type to develop and the price point, the choice become apparent that an ANOVA analysis would be more appropriate acorss the undergarment types.  
 
 <center>Ho: There is no difference in pricing by underwear type.   
 Ha: There is a difference in pricing by underwear type.</center>
@@ -77,7 +86,7 @@ The results of the analysis show that there is a differece since the probability
 Analysis (BLS)
 ========================================================
 
-Separately, in providing a more rounded analysis, what demographic to target in a potential marketing campaign was also analyzed.  An ANOVA analysis was also used to determine if there is a difference between the income classes. 
+Separately, an analysis was done on potential customers to target in a potential marketing campaign was also provided.  An ANOVA analysis was also used to determine if there is a difference between the income classes. 
 
 <center>Ho: There is no difference in spend between income classes.  
 Ha: There is a difference in spend between income classes.</center>
@@ -86,18 +95,52 @@ The results of the analysis show that there is a difference since the probabilit
 
 <center>![my image](TeamUndies-figure/ANOVABLS.jpeg)</center>
 
-From our validation, this data is heavily right skewed which may invalidate this statistical test.  However, as a guiding factor for the company in terms of who to target, the information is valid for descriptive purposes.  
+From our validation, this data is heavily right skewed which may invalidate this statistical test.  
+
+The information is valid, however, for descriptive purposes as a guiding factor for the company in terms of who to target.
 
 Conclusion
 ========================================================
 
-The data collected will provide strong guidance to the fledging brand to determine what direction they should take.
+The data collected will provide strong guidance to the startup brand to determine what direction they should take.
 
-They should consider <b>trunks</b> as the secondary type based upon prevalency in the retail space at an approximate <b>price point of $25-$35 a pair</b>.
+- They should consider <b>trunks</b> as the secondary type based upon prevalency in the retail space at an approximate <b>price point of $25-$35 a pair</b>.
 
-They should also consider a marketing campaign based upon income as a factor.  In reviewing the data those that made more than $50,000 tended to have a higher purchase amount in the public data.  
+- They should also consider a marketing campaign based upon income as a factor.  
+
+- Those with a household income of greater than $50,000 tended to have a higher spend in the undergarment category.  
 
 Appendix A
 ========================================================
+
+Additional Plots for Retailer Data.  
+
+Material vs. Price and Color vs Price. 
+
+<center>
+![my image](TeamUndies-figure/MaterialPrice.jpeg)
+![my image](TeamUndies-figure/ColorPrice.jpeg)
+</center>
+
+Appendix B (Code Part 1)
+========================================================
+
+<center>
+![my image](TeamUndies-figure/Code1.png)
+</center>
+
+Appendix B (Code Part 2)
+========================================================
+
+<center>
+![my image](TeamUndies-figure/Code2.png)
+</center>
+
+Appendix B (Code Part 3)
+========================================================
+
+<center>
+![my image](TeamUndies-figure/Code3.png)
+</center>
 
 
