@@ -49,6 +49,10 @@ nord <- filter(nord, !is.na(name))
 
 # Clean up 'type' column and add missing values
 nord$type <- str_replace(nord$type, "c\\(\"briefs\", \"boxer briefs\"\\)", "boxer briefs")
+nord$type <- str_replace(nord$type, "c\\(\"briefs\", \"bikini\"\\)", "briefs")
+nord$type <- str_replace(nord$type, "underwear", "briefs")
+nord$type <- str_replace(nord$type, "thong", "briefs")
+nord$type <- str_replace(nord$type, "boxer short", "boxer briefs")
 nord$type[is.na(nord$type) & str_detect(str_to_lower(nord$name), "trunk")] <- "trunks"
 nord$type[is.na(nord$type) & str_detect(str_to_lower(nord$name), "boxer brief")] <- "boxer briefs"
 nord$type[is.na(nord$type) & str_detect(str_to_lower(nord$name), "brief")] <- "briefs"
@@ -68,3 +72,5 @@ nord_tidy <- nord %>%
 
 write.csv(nord_tidy, "nord-tidy.csv", row.names = FALSE)
 saveRDS(nord, "nord.rds")
+
+count(nord, type)
