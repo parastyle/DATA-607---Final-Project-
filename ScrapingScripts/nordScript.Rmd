@@ -1,0 +1,140 @@
+---
+title: "nordstrom"
+author: "Michael Muller"
+date: "May 13, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
+library(stringr)
+library(jsonlite)
+library(devtools)
+library(httr)
+library(Rcpp)
+library(dplyr)
+library(knitr)
+options(digits = 4)
+options(stringsAsFactors = FALSE)
+```
+
+
+```{r}
+
+viableMaterials = c('charmeuse','cotton','polyamide','polyester','satin','silk','spandex','velvet','tactel','viscose','nylon','microfiber','chiffon','elastane','elastic','jacquard','leather','lycra','merino','wool','combed','mesh','knit', 'woven')
+viableStyles = c('briefs','boxer briefs','trunks','boxers','underwear','thong','g-string','boxer short','bikini')
+
+
+patterns = function(x){
+  print(x)
+  if(x == "NA")
+    return('pattern')
+  else{return(x)}
+}
+
+dataMissing = function(x){
+  if(length(x)== 0 | is.null(x))
+    return(NA)
+  else{
+    return(x)
+  }
+}
+
+nordURLS = list('http://shop.nordstrom.com/c/mens-underwear?origin=leftnav&cm_sp=Left%20Navigation-_-Underwear&top=100&page=1','http://shop.nordstrom.com/c/mens-underwear?origin=leftnav&cm_sp=Left%20Navigation-_-Underwear&top=100&page=2','http://shop.nordstrom.com/c/mens-underwear?origin=leftnav&cm_sp=Left%20Navigation-_-Underwear&top=100&page=3','http://shop.nordstrom.com/c/mens-underwear?origin=leftnav&cm_sp=Left%20Navigation-_-Underwear&top=100&page=4','http://shop.nordstrom.com/c/mens-underwear?origin=leftnav&cm_sp=Left%20Navigation-_-Underwear&top=100&page=5')
+
+underwearLinks = vector('character')
+
+for(L in nordURLS){
+  print(L)
+  url = paste0(L)
+  lines = readLines("./custom_scrape.js")
+  lines[1] = paste0("var url ='", url ,"';")
+  writeLines(lines, "custom_scrape.js")
+  
+system('./phantomjs  custom_scrape.js')
+pg <- read_html("loaded.html")
+
+
+
+individualLinks = html_nodes(pg, xpath = '//*[@id="npr-product-results-page"]/div/div[1]/div/main/div/div[2]/div/section/div/div')
+individualLinks = html_nodes(individualLinks,'a')
+individualLinks = unique(html_attr(individualLinks,'href'))
+
+exp = subset(individualLinks, !str_detect(individualLinks, 'pack') & !str_detect(individualLinks,'review') )
+exp = exp[nchar(exp) > 15]
+individualLinkers = paste('http://shop.nordstrom.com',exp,sep="") 
+underwearLinks = append(underwearLinks,individualLinkers)
+}
+```
+
+```{r}
+
+results = list()
+count = 1
+
+for(L in underwearLinks[201:length(underwearLinks)]){
+  print(L)
+  url = paste0(L)
+  lines = readLines("./custom_scrape.js")
+  lines[1] = paste0("var url ='", url ,"';")
+  writeLines(lines, "custom_scrape.js")
+  
+system('./phantomjs  custom_scrape.js')
+pg <- read_html("loaded.html")
+
+
+
+
+
+
+
+
+
+title = dataMissing(html_text(html_nodes(pg,xpath = '//*[@class="product-information"]/div/section[1]/h1')))
+review = dataMissing(html_text(html_nodes(pg,xpath = '//*[@class="ada-hidden"]/span[1]')))
+brand = dataMissing(html_text(html_nodes(pg,xpath='//*[@class="brand-title"]/h2/a/span')))
+
+
+
+# Curse nordstroms crazy price labels
+original_price = html_text(html_nodes(pg,xpath='//*[@class="current-price"]'))
+if(identical(original_price, character(0))==TRUE){
+sale_price = html_text(html_nodes(pg,xpath='//*[@class="current-price price-display-sale"]'))
+sale_price = substr(sale_price,2,nchar(sale_price))
+original_price = html_text(html_nodes(pg,xpath='//*[@class="original-price"]'))
+original_price = unique(original_price)
+original_price = original_price[length(original_price)]
+}else{ sale_price = NA}
+original_price = substr(original_price,2,nchar(original_price))
+
+
+
+colors = dataMissing(html_nodes(pg,xpath='//*[@class="color-option-swatch"]/a'))
+colors = html_attr(colors,'aria-label')
+colors = substr(colors,1,nchar(colors)-12)
+colors = subset(colors, !str_detect(colors, 'swatch' ))
+
+
+#materials
+bullet_points = (html_nodes(pg,xpath='//*[@class="module-content"]/div'))
+materials = dataMissing(unlist(str_extract_all(tolower(as.character(bullet_points[1])),viableMaterials)))
+
+#styles
+style = dataMissing(unlist(str_extract_all(tolower(title),viableStyles)))
+
+observation = list(style,title,colors,materials,original_price,sale_price,review,'nordstrom',brand)
+
+results[[count]] = observation
+count = count +1
+
+}
+
+
+nordstromResults = as.data.frame(do.call(cbind, results))
+nordstromResults = data.frame(lapply(nordstromResults, as.character), stringsAsFactors=FALSE)
+
+nordstromResults[3,] = lapply(nordstromResults[3,],patterns)
+write.csv2(nordstromResults,'nordstromResults3.csv')
+```
+
