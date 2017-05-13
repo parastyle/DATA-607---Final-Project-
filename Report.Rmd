@@ -1,0 +1,75 @@
+---
+title: "Underwear Price Analysis"
+author: "Cesar Espitia, Michael Muller, Ilya Kats"
+date: "May 2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+bloom <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/bloomingdales.rds")))
+ck <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/ck.rds")))
+nord <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/nord.rds")))
+data <- rbind(bloom, ck, nord[, 1:9])
+```
+
+## Analysis Summary
+
+## Data
+
+Data for the analysis was collected from three main sources. Information about relevant products was scraped from online shops of [Bloomingdale's](https://www.bloomingdales.com/buy/mens-underwear), [Calvin Klein](http://www.calvinklein.us/en/underwear) and [Nordstrom](http://shop.nordstrom.com/c/mens-underwear). The scraping took place the week of May 7, 2017. The data was clean up and any observations missing product name, type or price were removed from the data set. The final set includes 511 observations - 134 from Bloomingdale's, 62 from Calvin Klein and 315 from Nordstrom.
+
+The following information was captured about each observation:
+
+* __Product Name__
+* __Product Type__: Includes one of four underwear types: _boxer briefs_ (266 observations), _boxers_ (30), _briefs_ (73), _trunks_ (142).
+* __Color__: All colors the product is available in. Multi-color products were captured as patterned.
+* __Material__: All materials used in the product. Not available for all products.
+* __Original Price__
+* __Sale Price__
+
+Some data descriptive charts are included below. 
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+u <- data %>% 
+  select(color) %>% 
+  unnest(color) %>% 
+  count(color) %>% 
+  arrange(n) %>% 
+  top_n(15)
+u$color <- factor(u$color, levels = unique(u$color))
+ggplot(u, aes(u$color, u$n)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  xlab("") + ylab("No of Items") + ggtitle("Most Common Colors")
+```
+
+Please note that in this market segment there is a significant number of products with fancy color names. Research indicates that this naming strategy has an impact on consumer behavior. (_Skorinko JL, Kemmer S, Hebl MR, Lane DM. December 2006. [A Rose by Any Other Name...: Color-Naming Influences on Decision Making.](https://www.researchgate.net/publication/227652906_A_rose_by_any_other_name_Color-naming_influences_on_decision_making) Psychology & Marketing, Vol. 23(12): 975-993_)
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+u <- data %>% 
+  select(material) %>% 
+  unnest(material) %>%
+  filter(!is.na(material)) %>% 
+  count(material) %>% 
+  arrange(n) %>% 
+  top_n(15)
+u$material <- factor(u$material, levels = unique(u$material))
+ggplot(u, aes(u$material, u$n)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  xlab("") + ylab("No of Items") + ggtitle("Materials Used")
+```
+
+## Analysis
+
+## Limitations
+
+## Conclusion
