@@ -54,7 +54,7 @@ all %>% group_by(Description) %>% summarise(avg = mean(CLOTHXA))
 
 all <- select(all, Description, CLOTHXA)
 
-count(all, Description)
+kable::count(all, Description)
 
 #linear regression and testing ANOVA tos ee if different groups have different buying pattersn
 model <- lm(CLOTHXA ~ Description, data = all)
@@ -65,7 +65,7 @@ anova(model)
 class.mod = data.frame(Fitted = fitted(model),
   Residuals = resid(model), Treatment = all$Description)
 
-
+s
 #plotting data
 p1 = ggplot(all, aes(x = Description, y = CLOTHXA, colour = Description)) +
   geom_boxplot(fill = "grey80") +
