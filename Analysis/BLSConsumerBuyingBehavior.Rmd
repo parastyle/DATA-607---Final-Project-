@@ -79,7 +79,118 @@ grid.arrange(p1, p2, ncol=2)
 You can also embed plots, for example:
 
 ```{r, echo=FALSE}
-plot(cars)
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/nordstromResults1.csv", sep=";", stringsAsFactors = F,na.strings=c("NA", "NULL"))
+char_data <- t(char_data)
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+dfn1 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/nordstromResults2.csv", sep=";", stringsAsFactors = F,na.strings=c("NA", "NULL"))
+char_data <- t(char_data)
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+dfn2 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/nordstromResults3.csv", sep=";", stringsAsFactors = F,na.strings=c("NA", "NULL"))
+char_data <- t(char_data)
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+dfn3 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+
+nord <- rbind(dfn1, dfn2, dfn3)
+nord <- nord[-c(1),]
+
+nord$product.id <- seq.int(nrow(nord))
+nord <- select(nord, product.id, X1, X2, X3, X4, X5, X1.1, X2.1, X8)
+colnames(nord) <- colnames(bloom)
+
+nord <- filter(nord, is.na(nord[,2])==FALSE)
+nord <- filter(nord, is.na(nord[,4])==FALSE)
+nord <- nord[-c(101,200),]
+
+
+nord$color <- str_to_lower(str_replace_all(nord$color, "(c\\(|\\)|\"| )", ""))
+nord$color <- as.list(strsplit(nord$color, ","))
+nord$material <- str_replace_all(nord$material, "(c\\(|\\)|\"| )", "")
+nord$material <- as.list(strsplit(nord$material, ","))
+
+# Remove observations without 'name'
+nord$name <- str_trim(nord$name)
+nord <- filter(nord, !is.na(name))
+
+# Clean up 'type' column and add missing values
+nord$type <- str_replace(nord$type, "c\\(\"briefs\", \"boxer briefs\"\\)", "boxer briefs")
+nord$type[is.na(nord$type) & str_detect(str_to_lower(nord$name), "trunk")] <- "trunks"
+nord$type[is.na(nord$type) & str_detect(str_to_lower(nord$name), "boxer brief")] <- "boxer briefs"
+nord$type[is.na(nord$type) & str_detect(str_to_lower(nord$name), "brief")] <- "briefs"
+nord <- filter(nord, !is.na(type))
+
+# Remove observations without 'price'
+nord <- filter(nord, !is.na(price.original))
+
+
+## ---------------- CONVERT TO TIDY FORMAT ----------------
+
+nord_tidy <- nord %>% 
+  gather(key, value, 2:9) %>% 
+  unnest(value) %>% 
+  filter(!is.na(value))
+
+## ---------------- SAVE FOR FUTURE ANALYSIS  ----------------
+
+write.csv(nord_tidy, "nordingdales-tidy.csv", row.names = FALSE)
+saveRDS(nord, "nordingdales.rds")
+##---------------
+
+nord <- data.frame(
+ product.id = as.numeric(nord[,1]),
+ type = as.character(nord[,2]),
+ name = as.character(nord[,3]),
+ color = as.character(nord[,4]),
+ material = as.character(nord[,5]),
+ price.original = as.numeric(nord[,6]),
+ price.sale = as.numeric(nord[,7]),
+ reviews = as.numeric(nord[,8]),
+ source = as.character(nord[,9])
+)
+
+ggplot(nord, aes(price.original)) + 
+  geom_histogram() + 
+  xlab("Price") + ylab("")
+
+nordsub <- select(nord, type, price.original)
+
+#
+model <- lm(price.original ~ type, data = nordsub)
+summary(model)
+anova(model)
+
+class.mod = data.frame(Fitted = fitted(model),
+                       Residuals = resid(model), Treatment = nordsub$type)
+
+
+p1 = ggplot(nordsub, aes(x = type, y = price.original, colour = type)) +
+  geom_boxplot(fill = "grey80") +
+  scale_x_discrete() + xlab("Type") +
+  ylab("Price")
+
+p2 = ggplot(class.mod, aes(Fitted, Residuals, colour = Treatment)) + geom_point()
+grid.arrange(p1, p2, ncol=2)
+
+nord %>% group_by(type) %>% summarise(avg = mean(price.original))
+bloom %>% group_by(type) %>% summarise(avg = mean(price.original))
+
+u <- nord %>% 
+  select(color) %>% 
+  unnest(color) %>% 
+  count(color) %>% 
+  arrange(n) %>% 
+  top_n(15)
+u$color <- factor(u$color, levels = unique(u$color))
+ggplot(u, aes(u$color, u$n)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  xlab("Color") + ylab("No of Items")
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
