@@ -8,10 +8,15 @@ Contents
 ========================================================
 
 Problem  
+
 Methodology and Data Collection  
+
 Validation  
+
 Analysis  
-Conclusion
+
+Conclusion  
+
 
 Problem
 ========================================================
@@ -35,17 +40,53 @@ The data was collected by using information found on retailers websites.  Those 
 - Nordstrom (www.nordstrom.com)
 - Calvin Klein (www.calvinklein.com)
 
-Data was collected from retailers in the first week of May 2017. Other websites were originally considered but the three above provided a good sample for analysis.  
+Data was collected from retailers in the first week of May 2017. Other websites were originally considered but the three above provided a good sample for analysis.  The following was collected:
+
+- Product Name
+- Product Type: Includes one of four underwear types: boxer briefs (266 observations), boxers (30), briefs (73), trunks (142).
+- Color: All colors the product is available in. Multi-color products were captured as patterned.
+- Material: All materials used in the product. Not available for all products.
+- Original Price
+- Sale Price
 
 To further round out the data collection, data from a government source was used to determine household spend on particular goods.  
 
-The Bureau of Labor Statistics (BLS) had a consumer expenditure diary data. The data downloaded was from Quarter 1 in 2015 only for category 200 (Undergarments) (source: https://www.bls.gov/cex/).  
+The Bureau of Labor Statistics (BLS) runs the Consumer Expenditure Survey (CE) program in the US. The data downloaded was from Quarter 1 in 2015 only for category 200 (Undergarments) (source: https://www.bls.gov/cex/).  
 
 
 Methodology and Data Collection
 ========================================================
 
-Webscraping
+Webscraping / Datascraping
+
+Webscraping was conducted on Bloomingdales, Calvin Klein, and Nordstrom US websites.
+
+Initial analysis of their source code revealed similar frame works; meaning designing a script to scrape one site would be a foundation for the other two.
+
+The links to all male undergarments of each site were first obtained and transformed to assure only relevant information was to be collected; each link to become an observation.
+
+All attributes were extracted through rvest, xpath, and regular expressions; iteratively adjusted for consistency and tested between dissimilar cases. 
+
+Output format : .csv
+
+
+
+Problems and Solutions for Data Collection
+========================================================
+
+AJAX - "the method of exchanging data with a server and updating parts of a web page, without reloading the entire page" or (asynchronous Javascript and XML)
+
+- In order to gather any data from any of these websites; it was necessary for each page scraped, to tell the active javascript engine "I have observed the webpage, and would like to see X, Y, and Z"
+
+- To talk with the active javascript, it was necessary to bypass bot detection.
+
+To accomplish both tasks, a "phantom browser" called PhantomJS (PJS) was called between each web request and data extraction; controlled via javascript.
+
+- The PJS assumed the identity of a firefox browser via a modified http request profile.
+
+- Inserted "human-like" random delays between requests to avoid bot detection.
+
+- Saved each page 'as is' to be re-loaded as complete HTML for data extraction.
 
 Validation (Retail Sites)
 ========================================================
@@ -54,7 +95,8 @@ A total of 511 rows of data were collected from Bloomingdales, Nordstrom and CK.
 
 To determine the validity of the data, a histogram of price, a histogram of price by underwear type, and a normal QQ plot are shown below.  
 
-<center>![my image](TeamUndies-figure/price2.jpeg)
+<center><b>Mean Price = $30.51 and SD = $7.66</b>  
+![my image](TeamUndies-figure/price2.jpeg)
 ![my image](TeamUndies-figure/validatedata.jpeg)</center>
 
 The overall price histogram looks normally distributed and the QQ plot to show little to no abnormalities.  
