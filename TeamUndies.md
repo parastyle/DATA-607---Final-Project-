@@ -21,7 +21,7 @@ A new underwear brand is being launched that caters to the larger, more stylish 
 
 A boxer brief has been developed by the founders but they also need to offer one more type and need to know how to price it.  
 
-This information is provided by resources like Mintel, Ibisworld or Gartner but are cost prohibitive (single analysis upwards of $1,000 at times)
+This information is provided by resources like Mintel, IBISWorld or Gartner but are cost prohibitive (single analysis upwards of $1,000 at times)
 
 The goal of this project is to find <b>freely available</b> data to create a market analysis that will help them in answering the question:  
 
@@ -74,12 +74,12 @@ The data is heavily right skewed.  Although not normally distributed, the data w
 Analysis (Retail)
 ========================================================
 
-Since the goal is to determine a secondary underwear type to develop and the price point, the choice become apparent that an ANOVA analysis would be more appropriate acorss the undergarment types.  
+Since the goal is to determine a secondary underwear type to develop and the price point, the choice become apparent that an ANOVA analysis would be more appropriate across the undergarment types.  
 
-<center>Ho: There is no difference in pricing by underwear type.   
-Ha: There is a difference in pricing by underwear type.</center>
+<center>$H_0$: There is no difference in pricing by underwear type.   
+$H_A$: There is a difference in pricing by underwear type.</center>
 
-The results of the analysis show that there is a differece since the probability is <b>Pr(>F) = 2.8e-8.</b>
+The results of the analysis show that there is a difference since the probability is <b>Pr(>F) = 2.8e-8.</b>
 
 <center>![my image](TeamUndies-figure/ANOVATypePrice.jpeg)</center>
 
@@ -88,8 +88,8 @@ Analysis (BLS)
 
 Separately, an analysis was done on potential customers to target in a potential marketing campaign was also provided.  An ANOVA analysis was also used to determine if there is a difference between the income classes. 
 
-<center>Ho: There is no difference in spend between income classes.  
-Ha: There is a difference in spend between income classes.</center>
+<center>$H_0$: There is no difference in spend between income classes.  
+$H_A$: There is a difference in spend between income classes.</center>
 
 The results of the analysis show that there is a difference since the probability is <b>Pr(>F) = 0.01</b>
 
