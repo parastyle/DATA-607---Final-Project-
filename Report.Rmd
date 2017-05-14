@@ -1,6 +1,6 @@
 ---
 title: "Underwear Price Analysis"
-author: "Cesar Espitia, Michael Muller, Ilya Kats"
+author: "Cesar Espitia, Ilya Kats and Michael Muller"
 date: "May 2017"
 output:
   html_document: default
@@ -12,19 +12,31 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyr)
 library(dplyr)
+library(stringr)
+library(grid)
+library(RCurl)
+library(gridExtra)
 library(ggplot2)
 
 bloom <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/bloomingdales.rds")))
 ck <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/ck.rds")))
 nord <- readRDS(gzcon(url("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/nord.rds")))
 data <- rbind(bloom, ck, nord[, 1:9])
+data$price.original <- as.double(data$price.original)
+data$price.sale <- as.double(data$price.sale)
 ```
 
-## Analysis Summary
+## Objective
+
+A new underwear brand is being launched that caters to the larger, more stylish gentlemen. Currently, the startup has one type of underwear designed (boxer briefs), but there is interest in picking one more type of underwear to include in the line. Additionally, so far there has been little analysis in how to price the produst. Complete market research done by a dedicated research firm such as Mintel, IBISWorld or Gartner is cost prohibitive for the startup. The goal of this analysis is to provide the company with the starting point in how to price and brand their line in the marketplace using freely available data. 
 
 ## Data
 
-Data for the analysis was collected from three main sources. Information about relevant products was scraped from online shops of [Bloomingdale's](https://www.bloomingdales.com/buy/mens-underwear), [Calvin Klein](http://www.calvinklein.us/en/underwear) and [Nordstrom](http://shop.nordstrom.com/c/mens-underwear). The scraping took place the week of May 7, 2017. The data was clean up and any observations missing product name, type or price were removed from the data set. The final set includes 511 observations - 134 from Bloomingdale's, 62 from Calvin Klein and 315 from Nordstrom.
+Data used in analysis was collected from two sources - several online shops and Bureau of Labor Statistics.
+
+Information about related products was scraped from online shops of [Bloomingdale's](https://www.bloomingdales.com/buy/mens-underwear), [Calvin Klein](http://www.calvinklein.us/en/underwear) and [Nordstrom](http://shop.nordstrom.com/c/mens-underwear). These three retailers were chosen because they provide a good sample of the type of marketplace the company is looking to enter (upscale and luxury). Other websites were considered, but were not included in the analysis because of resource constraints.
+
+The scraping took place the week of May 7, 2017. The data was cleaned up and any observations missing product name, type or price were removed from the data set. The final set includes 511 observations - 134 from Bloomingdale's, 62 from Calvin Klein and 315 from Nordstrom.
 
 The following information was captured about each observation:
 
@@ -35,8 +47,10 @@ The following information was captured about each observation:
 * __Original Price__
 * __Sale Price__
 
+\newpage
 Some data descriptive charts are included below. 
 
+<CENTER>
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 u <- data %>% 
   select(color) %>% 
@@ -50,9 +64,11 @@ ggplot(u, aes(u$color, u$n)) +
   coord_flip() + 
   xlab("") + ylab("No of Items") + ggtitle("Most Common Colors")
 ```
+</CENTER>
 
-Please note that in this market segment there is a significant number of products with fancy color names. Research indicates that this naming strategy has an impact on consumer behavior. (_Skorinko JL, Kemmer S, Hebl MR, Lane DM. December 2006. [A Rose by Any Other Name...: Color-Naming Influences on Decision Making.](https://www.researchgate.net/publication/227652906_A_rose_by_any_other_name_Color-naming_influences_on_decision_making) Psychology & Marketing, Vol. 23(12): 975-993_)
+<B>TIP:</B> Please note that in this market segment there is a significant number of products with fancy color names. Research indicates that this naming strategy has an impact on consumer behavior. (_Skorinko JL, Kemmer S, Hebl MR, Lane DM. December 2006. [A Rose by Any Other Name...: Color-Naming Influences on Decision Making.](https://www.researchgate.net/publication/227652906_A_rose_by_any_other_name_Color-naming_influences_on_decision_making) Psychology & Marketing, Vol. 23(12): 975-993_)
 
+<CENTER>
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 u <- data %>% 
   select(material) %>% 
@@ -67,9 +83,155 @@ ggplot(u, aes(u$material, u$n)) +
   coord_flip() + 
   xlab("") + ylab("No of Items") + ggtitle("Materials Used")
 ```
+</CENTER>
 
+To further round out the data collection, data from a government source was used to determine household spend on particular goods. The Bureau of Labor Statistics (BLS) runs the [Consumer Expenditure Surveys (CE)](https://www.bls.gov/cex/) program that provides data on expenditures, income, and demographic characteristics of consumers in the United States. CE data is collected by the Census Bureau for BLS in two surveys, the Interview Survey for major and/or recurring items and the Diary Survey for more minor or frequently purchased items. The analysis uses data from 1st Quarter of 2015. The data was further filtered down only to category 200 (Undergarments).
+
+\newpage
 ## Analysis
 
-## Limitations
+The graph below shows the distribution of original price from retail data. The distribution is unimodal with some right skew, but overall it appears to be nearly normal. **Mean price is $30.51** with standard deviation of $7.66. Median price is $29.00. Distribution of individual types are similar to the entire sample distribution.
+
+<CENTER>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+h <- ggplot(data, aes(price.original, fill=..count.., ..count..)) + geom_histogram(bins=20) + 
+  scale_fill_continuous(guide = guide_legend(title = "No of Items"))
+p2 <- h + facet_grid(. ~type) + xlab("Price") + ylab("")
+i <- ggplot(data, aes(price.original, fill=..count.., ..count..)) + geom_histogram(bins=20) + 
+  xlab("Price") + ylab("") + 
+  scale_fill_continuous(guide = guide_legend(title = "No of Items"))
+grid.arrange(i,p2,ncol=1)
+```
+</CENTER>
+
+\newpage
+To test the normality of price distribution, below is the normal probability plot. The bulk of the data follows the line fairly close indicating normal distribution; however, there is some deviation especially in the right tail. 
+
+<CENTER>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+qqnorm(data$price.original)
+qqline(data$price.original, col=2)
+```
+</CENTER>
+
+Considering the independence of observations it is important to note that there may be some dependence since the data comes from only three online shops and it is possible that pricing decesions made for one product influence prices of other products. 
+
+\newpage
+Below charts show the distribution of household spending per BLS data for the entire sample as well as by income level. Normal probability plot of the distribution is also included below.
+
+<CENTER>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/Consumer%20Survey%20(BLS)/Buying200.csv", stringsAsFactors = F,na.strings=c("NA", "NULL"))
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+df1 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/Consumer%20Survey%20(BLS)/BuyingIncClass.csv", stringsAsFactors = F, na.strings=c("NA", "NULL"))
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+df2 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+char_data <- read.csv("https://raw.githubusercontent.com/parastyle/DATA-607---Final-Project-/master/Data/Consumer%20Survey%20(BLS)/classes.csv", stringsAsFactors = F, na.strings=c("NA", "NULL"))
+num_data <- data.frame(data.matrix(char_data))
+numeric_columns <- sapply(num_data,function(x){mean(as.numeric(is.na(x)))<0.5})
+df3 <- data.frame(num_data[,numeric_columns], char_data[,!numeric_columns])
+colnames(df3) <- c("INCLASS", "Description")
+df23 <- select(left_join(df2, df3, by = "INCLASS"), NEWID, Description)
+all <- select(left_join(df1, df23, by = "NEWID"), NEWID, ALCNO, CLOTHMOA, CLOTHXA, Description)
+all <- data.frame(
+  NEWID = as.character(all[,1]),
+  ALCNO = as.numeric(all[,2]),
+  CLOTHMOA = as.numeric(all[,3]),
+  CLOTHXA = as.numeric(all[,4]),
+  Description = as.character(all[,5])
+)
+all <- filter(all, is.na(all[,5])==FALSE)
+all <- filter(all, is.na(all[,4])==FALSE)
+
+z <- ggplot(all, aes(CLOTHXA, fill=..count.., ..count..)) + geom_histogram(bins=20)
+z2 <- z + facet_grid(. ~Description) + xlab("Household Spending (Undergarments Category)") + ylab("") + 
+  scale_fill_continuous(guide = guide_legend(title = "No of Items")) + 
+  theme(axis.text.x = element_blank())
+zi <- ggplot(all, aes(CLOTHXA, fill=..count.., ..count..)) + geom_histogram(bins=20) + 
+  xlab("Household Spending (Undergarments Category)") + ylab("") + 
+  scale_fill_continuous(guide = guide_legend(title = "No of Items")) 
+grid.arrange(zi, z2, ncol=1)
+```
+</CENTER>
+
+<CENTER>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+qqnorm(all$CLOTHXA)
+qqline(all$CLOTHXA, col=2)
+```
+</CENTER>
+
+__IMPORTANT NOTE:__ Looking over the histogram and normal probability plot there are serious concerns whether the distribution can be considered nearly normal. It does not appear to be so. Continueing the analysis may not yield meaningul statistical results, but it may still be helpful for understanding the data for the startup.
+
+Since the goal is to determine a secondary underwear type to develop and the price point, the choice become apparent that an ANOVA analysis would be more appropriate across the undergarment types. Consider the following hypothesis.
+
+$H_0$: There is no difference in pricing by underwear type.<BR>
+$H_A$: There is a difference in pricing by underwear type.
+
+ANOVA summary table below shows results of analyzing product price by type categories. 
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+BNCsub <- select(data, type, price.original)
+model <- lm(price.original ~ type, data = BNCsub)
+anova(model)
+```
+
+Since the p-value is close to 0, we reject the null hypothesis. There is significant difference in pricing between at least some types. Box plots below illustrate each group. 
+
+<CENTER>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+class.mod <- data.frame(Fitted = fitted(model),
+                        Residuals = resid(model), type = BNCsub$type)
+p1 <- ggplot(BNCsub, aes(x = type, y = price.original, colour = type)) +
+  geom_boxplot(fill = "grey80") +
+  scale_x_discrete() + xlab("Type") +
+  ylab("Price")
+p2 = ggplot(class.mod, aes(Fitted, Residuals, colour = type)) + geom_point()
+grid.arrange(p1, p2, ncol=2)
+```
+</CENTER>
+
+Now consider the household spending from the BLS data to see if there is difference between spending of various income groups. Set up similar hypothesis.
+
+$H_0$: There is no difference in spending between income classes.<BR>
+$H_A$: There is a difference in spending between income classes.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+model2 <- lm(CLOTHXA ~ Description, data = all)
+anova(model2)
+```
+
+ANOVA test indicates that with a confidence level of 95%, we reject the null hypothesis. There is significant difference in household spending between at least some income groups.
+
+<CENTER>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+class.mod2 = data.frame(Fitted = fitted(model2),
+                        Residuals = resid(model2), IncomeClass = all$Description)
+m1 = ggplot(all, aes(x = Description, y = CLOTHXA, colour = Description)) +
+  geom_boxplot(fill = "grey80") +
+  scale_x_discrete() + xlab("Income Class") +
+  ylab("Household Spending") + 
+  theme(axis.text.x = element_blank())
+m2 = ggplot(class.mod2, aes(Fitted, Residuals, colour = IncomeClass)) + geom_point()
+grid.arrange(m1, m2, ncol=2)
+```
+</CENTER>
+
+From the discussion of assumptions above, this data is heavily right skewed which may invalidate this statistical test. However, the information and box plots have some value for descriptive purposes as a guiding factor for the company in terms of who to target.
 
 ## Conclusion
+
+The data collected provides strong starting guidance to the startup in determining direction of their underwear line. Trunks is a popular type of underwear with a similar pricing distribution of boxer briefs, so the startup should consider adding this type to their line. Approximate price point of a pair is $25-$35. 
+
+Not suprisingly, higher income increases spending in the undergarments category. The startup should consider targeting consumers based on their income level. Those with a household income of greater than $50,000 tended to have a higher spending.  
+
+## Limitations of Analysis
+
+Both price data and BLS income/spending data cover only US market. Factors governing other markets can differ significantly and this analysis should not be extended beyond the US market. 
+
+This analysis provides information only about a couple of factors relevant for market research. There are other factors that could be and should be researched, such as consumer buying habits, market size, market growth or decline, and any current trends. Managing the design and launch around the data driven process can generate confidence in business model assumptions. 
+
+The analysis covers price data from three major retailers. The retailers are typical for a certain market segment. However, results may not fully transfer to other market segments. Startup should take care in applying results making sure that assumptions and data sources fit the business model.

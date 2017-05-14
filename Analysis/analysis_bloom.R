@@ -16,7 +16,7 @@ ggplot(bloom, aes(price.original)) +
   xlab("Price") + ylab("")
 
 # Popular colors (top 15)
-u <- bloom %>% 
+u <- data %>% 
   select(color) %>% 
   unnest(color) %>% 
   count(color) %>% 
